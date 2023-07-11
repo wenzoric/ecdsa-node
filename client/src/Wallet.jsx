@@ -1,14 +1,17 @@
 import server from "./server";
 
-import * as secp2 from 'ethereum-cryptography/secp256k1-compat';
+import {secp256k1} from "ethereum-cryptography/secp256k1.js";
 
-import {toHex} from 'ethereum-cryptography/utils'
+import { utf8ToBytes, toHex } from "ethereum-cryptography/utils.js";
 
 function Wallet({ address, setAddress, balance, setBalance,privateKey,setPrivateKey }) {
   async function onChange(evt) {
     const privateKey = evt.target.value;
     setPrivateKey(privateKey);
-    const address = toHex(secp2.publicKeyCreate(privateKey));
+    const publicKey = secp256k1.getPublicKey(privateKey)
+    console.log("publicKey----",publicKey);
+    const address = toHex(secp256k1.getPublicKey(privateKey));
+    // const address=""
     setAddress(address);
     if (address) {
       const {
