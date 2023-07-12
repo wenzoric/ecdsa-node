@@ -11,7 +11,6 @@ function Wallet({ address, setAddress, balance, setBalance,privateKey,setPrivate
     const publicKey = secp256k1.getPublicKey(privateKey)
     console.log("publicKey----",publicKey);
     const address = toHex(secp256k1.getPublicKey(privateKey));
-    // const address=""
     setAddress(address);
     if (address) {
       const {

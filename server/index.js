@@ -1,3 +1,7 @@
+const { secp256k1 } = require('ethereum-cryptography/secp256k1');
+const { toHex, hexToBytes } = require('ethereum-cryptography/utils');
+const { keccak256 } = require('ethereum-cryptography/keccak');
+const crypto = require("./crypto");
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -21,7 +25,15 @@ app.get("/balance/:address", (req, res) => {
 });
 
 app.post("/send", (req, res) => {
-  const { sender, recipient, amount } = req.body;
+
+  //TODO get a signature from client
+  //recover the public address from the signature
+
+  const { sender, recipient, amount ,messageHash,signature} = req.body;
+  console.log('messageHash',messageHash);
+  console.log('signature:',signature);
+  if (!secp256k1.verify(signature, messageHash, sender)) 
+        return res.status(400).send({ message: "Invalid transaction" });
 
   setInitialBalance(sender);
   setInitialBalance(recipient);

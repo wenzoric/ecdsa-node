@@ -1,7 +1,11 @@
 import { useState } from "react";
 import server from "./server";
+import hashMessage from "./hashMessage";
+import signMessage from "./signMessage";
 
-function Transfer({ address, setBalance }) {
+import { utf8ToBytes, toHex } from "ethereum-cryptography/utils.js";
+
+function Transfer({ address, setBalance ,privateKey}) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -9,7 +13,21 @@ function Transfer({ address, setBalance }) {
 
   async function transfer(evt) {
     evt.preventDefault();
-
+   
+    const  message = JSON.stringify({
+      sender: address,
+      amount: parseInt(sendAmount),
+      recipient,
+    });
+    console.log('message:',message);
+    //messageHash
+    const  messageHash =  hashMessage(message);
+    console.log('messageHash:',messageHash);
+    //privateKey 
+    console.log('private key:',privateKey)
+    //sign
+    const signature = await  signMessage(messageHash,privateKey);
+    console.log('signature:',signature.toCompactHex());
     try {
       const {
         data: { balance },
@@ -17,10 +35,12 @@ function Transfer({ address, setBalance }) {
         sender: address,
         amount: parseInt(sendAmount),
         recipient,
+        messageHash:messageHash,
+        signature:signature.toCompactHex()
       });
       setBalance(balance);
     } catch (ex) {
-      alert(ex.response.data.message);
+      alert(ex);
     }
   }
 
@@ -40,7 +60,7 @@ function Transfer({ address, setBalance }) {
       <label>
         Recipient
         <input
-          placeholder="Type an address, for example: 0x2"
+          placeholder="Type an address"
           value={recipient}
           onChange={setValue(setRecipient)}
         ></input>
